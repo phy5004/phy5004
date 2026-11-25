@@ -30,30 +30,40 @@ export default async function handler(req, res) {
 
     const proto = "https:/";
     const host = "generativelanguage" + ".googleapis.com";
-    const endpoint = [proto, host, "v1beta", "models", "gemini-3.8-flash:generateContent"].join("/");
+    const models = ["gemini-3.8-flash", "gemini-3.8-flash-lite", "gemini-3.5-flash"];
 
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": apiKey
-      },
-      body: JSON.stringify({
-        contents: new Array({ parts: new Array({ text: prompt }) }),
-        generationConfig: { temperature: 0.7, responseMimeType: "application/json" }
-      })
-    });
+    let data = null;
+    let lastError = "";
 
-    const rawBody = await response.text();
-    let data;
-    try {
-      data = JSON.parse(rawBody);
-    } catch (e) {
-      throw new Error(`구글 응답 오류(${response.status}): ${rawBody.slice(0, 100)}`);
+    for (const model of models) {
+      const endpoint = [proto, host, "v1beta", "models", `${model}:generateContent`].join("/");
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey
+        },
+        body: JSON.stringify({
+          contents: new Array({ parts: new Array({ text: prompt }) }),
+          generationConfig: { temperature: 0.7, responseMimeType: "application/json" }
+        })
+      });
+
+      const rawBody = await response.text();
+      try {
+        const parsedBody = JSON.parse(rawBody);
+        if (response.ok) {
+          data = parsedBody;
+          break;
+        }
+        lastError = parsedBody?.error?.message || `API 오류 (${response.status})`;
+      } catch (e) {
+        lastError = `응답 오류 (${response.status})`;
+      }
     }
 
-    if (!response.ok) {
-      throw new Error(data?.error?.message || `API 오류 (${response.status})`);
+    if (!data) {
+      throw new Error(lastError || "모든 예비 모델이 현재 혼잡합니다. 잠시 후 다시 시도해 주세요.");
     }
 
     const rawText = data.candidates.at(0).content.parts.at(0).text;
@@ -65,3 +75,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message });
   }
 }
+
