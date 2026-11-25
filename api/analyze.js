@@ -28,9 +28,29 @@ export default async function handler(req, res) {
   "counselingTip": "학부모 상담 포인트 및 가정 지도 조언 (3~4문장, '~습니다.' 경어체)"
 }`;
 
-    const url = "https://googleapis.com";
+    // 1. 현재 API 키로 사용 가능한 모델 목록 자동 조회
+    const listRes = await fetch("https://googleapis.com", {
+      headers: { "x-goog-api-key": apiKey }
+    });
+    const listData = await listRes.json();
 
-    const response = await fetch(url, {
+    if (!listRes.ok) {
+      throw new Error(listData?.error?.message || `모델 목록 조회 실패 (${listRes.status})`);
+    }
+
+    const models = (listData.models || []).filter(
+      (m) => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent")
+    );
+
+    // flash 계열 우선 선택
+    const chosen = models.find((m) => m.name.includes("flash")) || models.at(0);
+    if (!chosen) {
+      throw new Error("현재 API 키에서 사용 가능한 Gemini 모델이 없습니다.");
+    }
+
+    // 2. 선택된 최신 모델로 문구 생성 호출
+    const genUrl = `https://googleapis.com{chosen.name}:generateContent`;
+    const response = await fetch(genUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -45,16 +65,9 @@ export default async function handler(req, res) {
       })
     });
 
-    const rawBody = await response.text();
-    let data;
-    try {
-      data = JSON.parse(rawBody);
-    } catch (e) {
-      throw new Error(`구글 서버 비정상 응답 (${response.status}): ${rawBody.slice(0, 120)}`);
-    }
-
+    const data = await response.json();
     if (!response.ok) {
-      return res.status(response.status).json({ error: data?.error?.message || `Gemini API 오류 (${response.status})` });
+      throw new Error(data?.error?.message || `Gemini API 오류 (${response.status})`);
     }
 
     const rawText = data.candidates.at(0).content.parts.at(0).text;
@@ -66,3 +79,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "서버 오류: " + err.message });
   }
 }
+
