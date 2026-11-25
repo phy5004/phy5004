@@ -29,18 +29,15 @@ export default async function handler(req, res) {
 }`;
 
     const proto = "https:/";
-    const host = apiKey.startsWith("AQ.")
-      ? "us-central1-aiplatform" + ".googleapis.com"
-      : "generativelanguage" + ".googleapis.com";
-    const endpoint = apiKey.startsWith("AQ.")
-      ? [proto, host, "v1", "publishers", "google", "models", "gemini-2.5-flash:generateContent"].join("/")
-      : [proto, host, "v1beta", "models", "gemini-2.5-flash:generateContent"].join("/");
+    const host = "generativelanguage" + ".googleapis.com";
+    const endpoint = [proto, host, "v1beta", "models", "gemini-2.5-flash:generateContent"].join("/");
 
-    const url = endpoint + "?key=" + encodeURIComponent(apiKey);
-
-    const response = await fetch(url, {
+    const response = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey
+      },
       body: JSON.stringify({
         contents: new Array({ parts: new Array({ text: prompt }) }),
         generationConfig: { temperature: 0.7, responseMimeType: "application/json" }
@@ -65,8 +62,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json(parsed);
   } catch (err) {
-    const detail = err.cause ? ` (${err.cause.message || err.cause.code})` : "";
-    return res.status(500).json({ error: err.message + detail });
+    return res.status(500).json({ error: err.message });
   }
 }
 
