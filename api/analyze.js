@@ -28,20 +28,23 @@ export default async function handler(req, res) {
   "counselingTip": "학부모 상담 포인트 및 가정 지도 조언 (3~4문장, '~습니다.' 경어체)"
 }`;
 
-    const bodyData = JSON.stringify({
-      contents: new Array({ parts: new Array({ text: prompt }) }),
-      generationConfig: { temperature: 0.7, responseMimeType: "application/json" }
-    });
+    const proto = "https:/";
+    const host = apiKey.startsWith("AQ.")
+      ? "us-central1-aiplatform" + ".googleapis.com"
+      : "generativelanguage" + ".googleapis.com";
+    const endpoint = apiKey.startsWith("AQ.")
+      ? [proto, host, "v1", "publishers", "google", "models", "gemini-2.5-flash:generateContent"].join("/")
+      : [proto, host, "v1beta", "models", "gemini-2.5-flash:generateContent"].join("/");
 
-    // AQ. 키는 Vertex AI 리전 엔드포인트(us-central1), AIza 키는 AI Studio 엔드포인트 사용
-    const url = apiKey.startsWith("AQ.")
-      ? "https://googleapis.com" + encodeURIComponent(apiKey)
-      : "https://googleapis.com" + encodeURIComponent(apiKey);
+    const url = endpoint + "?key=" + encodeURIComponent(apiKey);
 
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: bodyData
+      body: JSON.stringify({
+        contents: new Array({ parts: new Array({ text: prompt }) }),
+        generationConfig: { temperature: 0.7, responseMimeType: "application/json" }
+      })
     });
 
     const rawBody = await response.text();
@@ -66,3 +69,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message + detail });
   }
 }
+
