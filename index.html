@@ -5,120 +5,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>초등학교 행동발달특성(행발) AI 작성 도우미</title>
   <style>
-    :root {
-      --primary: #10b981;
-      --primary-hover: #059669;
-      --primary-soft: #ecfdf5;
-      --secondary: #3b82f6;
-      --bg: #f4f7f6;
-      --card-bg: #ffffff;
-      --text-main: #1e293b;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
-      --radius: 14px;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Noto Sans KR", sans-serif;
-      background-color: var(--bg);
-      color: var(--text-main);
-      line-height: 1.6;
-      padding: 20px;
-    }
-    .container { max-width: 900px; margin: 0 auto; }
-    header { text-align: center; margin-bottom: 22px; }
-    header h1 { font-size: 1.65rem; font-weight: 800; color: #065f46; margin-bottom: 6px; }
-    header p { color: var(--text-muted); font-size: 0.94rem; }
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
-      margin-bottom: 20px;
-    }
-    .row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-    .api-wrap { flex: 1; min-width: 220px; position: relative; display: flex; align-items: center; }
-    input[type="password"], input[type="text"], select, textarea {
-      width: 100%; padding: 10px 12px; border: 1px solid var(--border);
-      border-radius: 10px; font-size: 0.94rem; font-family: inherit; outline: none;
-    }
-    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
-    .pw-btn {
-      position: absolute; right: 10px; background: none; border: none;
-      color: var(--text-muted); cursor: pointer; font-size: 0.82rem;
-    }
-    .hint { margin-top: 8px; font-size: 0.8rem; color: var(--text-muted); }
-    .hint a { color: var(--primary-hover); text-decoration: none; font-weight: 600; }
-    .grid { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; margin-bottom: 16px; }
-    @media (max-width: 660px) { .grid { grid-template-columns: 1fr; } }
-    .lbl { font-weight: 700; font-size: 0.92rem; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-    .radio-grp { display: flex; gap: 8px; }
-    .radio-opt { flex: 1; }
-    .radio-opt input { display: none; }
-    .radio-opt span {
-      display: block; text-align: center; padding: 9px 8px; border: 1px solid var(--border);
-      border-radius: 10px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer;
-    }
-    .radio-opt input:checked + span { background: var(--primary-soft); border-color: var(--primary); color: #065f46; }
-    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-    .tag {
-      background: #f1f5f9; border: 1px solid var(--border); color: #334155;
-      padding: 5px 11px; border-radius: 999px; font-size: 0.82rem; cursor: pointer;
-    }
-    .tag:hover { background: var(--primary-soft); border-color: var(--primary); color: #065f46; }
-    textarea { min-height: 115px; resize: vertical; }
-    .btn-submit {
-      width: 100%; margin-top: 14px; padding: 14px; background: var(--primary); color: #fff;
-      border: none; border-radius: 12px; font-size: 1.02rem; font-weight: 700; cursor: pointer;
-    }
-    .btn-submit:hover:not(:disabled) { background: var(--primary-hover); }
-    .btn-submit:disabled { background: #94a3b8; cursor: not-allowed; }
-    .loading-box, .error-box, .results-box { display: none; }
-    .loading-box.active { display: block; text-align: center; padding: 38px; }
-    .spinner {
-      width: 40px; height: 40px; border: 4px solid var(--primary-soft);
-      border-top-color: var(--primary); border-radius: 50%;
-      animation: spin 0.9s linear infinite; margin: 0 auto 12px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .error-box.active {
-      display: block; background: #fef2f2; border: 1px solid #fecaca;
-      color: #b91c1c; padding: 14px; border-radius: 10px; margin-bottom: 20px; font-size: 0.92rem;
-    }
-    .results-box.active { display: flex; flex-direction: column; gap: 18px; }
-    .res-top {
-      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
-      gap: 8px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
-    }
-    .badge { font-size: 0.76rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--primary-soft); color: #065f46; }
-    .badge.blue { background: #eff6ff; color: #1d4ed8; }
-    .counter { font-size: 0.8rem; color: var(--text-muted); background: #f8fafc; padding: 4px 9px; border-radius: 6px; border: 1px solid var(--border); }
-    .btn-copy { background: var(--primary); color: #fff; border: none; padding: 6px 13px; border-radius: 8px; font-size: 0.83rem; font-weight: 600; cursor: pointer; }
-    .btn-copy.blue { background: var(--secondary); }
-    .res-textarea { background: #f8fafc; }
+    :root{--p:#10b981;--ph:#059669;--ps:#ecfdf5;--s:#3b82f6;--bg:#f4f7f6;--t:#1e293b;--m:#64748b;--b:#e2e8f0}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR",sans-serif;background:var(--bg);color:var(--t);line-height:1.6;padding:20px}
+    .wrap{max-width:880px;margin:0 auto}
+    header{text-align:center;margin-bottom:20px}
+    header h1{font-size:1.6rem;font-weight:800;color:#065f46;margin-bottom:4px}
+    header p{color:var(--m);font-size:.92rem}
+    .card{background:#fff;border:1px solid var(--b);border-radius:14px;padding:18px;box-shadow:0 4px 14px rgba(0,0,0,.04);margin-bottom:18px}
+    .row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+    select,textarea{width:100%;padding:10px 12px;border:1px solid var(--b);border-radius:10px;font-size:.93rem;font-family:inherit;outline:none}
+    select:focus,textarea:focus{border-color:var(--p)}
+    .grid{display:grid;grid-template-columns:1fr 2fr;gap:14px;margin-bottom:14px}
+    @media(max-width:650px){.grid{grid-template-columns:1fr}}
+    .lbl{font-weight:700;font-size:.9rem;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+    .r-grp{display:flex;gap:6px}
+    .r-opt{flex:1}
+    .r-opt input{display:none}
+    .r-opt span{display:block;text-align:center;padding:9px 6px;border:1px solid var(--b);border-radius:10px;font-size:.84rem;font-weight:600;color:var(--m);cursor:pointer}
+    .r-opt input:checked+span{background:var(--ps);border-color:var(--p);color:#065f46}
+    .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+    .tag{background:#f1f5f9;border:1px solid var(--b);color:#334155;padding:5px 10px;border-radius:99px;font-size:.82rem;cursor:pointer}
+    .tag:hover{background:var(--ps);border-color:var(--p);color:#065f46}
+    textarea{min-height:110px;resize:vertical}
+    .btn{width:100%;margin-top:14px;padding:14px;background:var(--p);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer}
+    .btn:hover:not(:disabled){background:var(--ph)}
+    .btn:disabled{background:#94a3b8;cursor:not-allowed}
+    .load,.err,.res{display:none}
+    .load.on{display:block;text-align:center;padding:36px}
+    .spin{width:38px;height:38px;border:4px solid var(--ps);border-top-color:var(--p);border-radius:50%;animation:sp .8s linear infinite;margin:0 auto 10px}
+    @keyframes sp{to{transform:rotate(360deg)}}
+    .err.on{display:block;background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;padding:14px;border-radius:10px;margin-bottom:18px;font-size:.9rem}
+    .res.on{display:flex;flex-direction:column;gap:16px}
+    .r-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--b)}
+    .bdg{font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--ps);color:#065f46}
+    .bdg.bl{background:#eff6ff;color:#1d4ed8}
+    .cnt{font-size:.8rem;color:var(--m);background:#f8fafc;padding:4px 8px;border-radius:6px;border:1px solid var(--b)}
+    .cp{background:var(--p);color:#fff;border:none;padding:6px 12px;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer}
+    .cp.bl{background:var(--s)}
+    .r-txt{background:#f8fafc}
   </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap">
   <header>
     <h1>🌱 초등학교 행동발달특성(행발) AI 작성 도우미</h1>
     <p>학생 관찰 키워드나 일화를 입력하면 나이스(NEIS) 기재 요령에 맞춘 행발 문구를 생성합니다.</p>
   </header>
 
-  <section class="card">
-    <div class="row">
-      <strong style="font-size: 0.9rem;">🔑 Gemini API Key</strong>
-      <div class="api-wrap">
-        <input type="password" id="apiKeyInput" placeholder="AIzaSy... 형태의 Google Gemini API 키 입력" autocomplete="off" />
-        <button type="button" class="pw-btn" id="togglePwBtn">보기</button>
-      </div>
-      <label style="font-size: 0.85rem; cursor: pointer;">
-        <input type="checkbox" id="saveKeyCheck" /> 브라우저에 키 저장
-      </label>
-    </div>
-    <div class="hint">입력한 키는 외부 서버로 전송되지 않습니다. (<a href="https://google.com" target="_blank">Google AI Studio 키 발급 ↗</a>)</div>
-  </section>
   <section class="card">
     <div class="grid">
       <div>
@@ -131,10 +65,10 @@
       </div>
       <div>
         <div class="lbl">📏 희망 글자 수 분량</div>
-        <div class="radio-grp">
-          <label class="radio-opt"><input type="radio" name="lengthOpt" value="약 250자 내외 (간결형)" /><span>간결형 (~250자)</span></label>
-          <label class="radio-opt"><input type="radio" name="lengthOpt" value="약 400자 내외 (표준형)" checked /><span>표준형 (~400자)</span></label>
-          <label class="radio-opt"><input type="radio" name="lengthOpt" value="약 500자 내외 (상세형)" /><span>상세형 (~500자)</span></label>
+        <div class="r-grp">
+          <label class="r-opt"><input type="radio" name="lengthOpt" value="약 250자 내외 (간결형)" /><span>간결형 (~250자)</span></label>
+          <label class="r-opt"><input type="radio" name="lengthOpt" value="약 400자 내외 (표준형)" checked /><span>표준형 (~400자)</span></label>
+          <label class="r-opt"><input type="radio" name="lengthOpt" value="약 500자 내외 (상세형)" /><span>상세형 (~500자)</span></label>
         </div>
       </div>
     </div>
@@ -153,83 +87,54 @@
 
     <div class="lbl">
       <span>📝 학생 관찰 내용 및 일화 입력</span>
-      <button type="button" id="clearBtn" style="background:none;border:none;color:var(--text-muted);font-size:0.8rem;cursor:pointer;text-decoration:underline;">내용 지우기</button>
+      <button type="button" id="clearBtn" style="background:none;border:none;color:var(--m);font-size:.8rem;cursor:pointer;text-decoration:underline">내용 지우기</button>
     </div>
     <textarea id="obsInput" placeholder="예: 친구가 준비물을 안 가져왔을 때 선뜻 빌려줌. 수업 시간에 집중력이 조금 흐트러질 때가 있으나 교사의 안내에 따라 끝까지 과제를 마침."></textarea>
-    <button type="button" class="btn-submit" id="generateBtn" disabled>✨ 행동발달특성 문구 생성하기</button>
+    <button type="button" class="btn" id="generateBtn" disabled>✨ 행동발달특성 문구 생성하기</button>
   </section>
-  <section class="card loading-box" id="loadingBox">
-    <div class="spinner"></div>
+  <section class="card load" id="loadingBox">
+    <div class="spin"></div>
     <strong>학생의 관찰 기록을 바탕으로 행발 문구를 작성 중입니다...</strong>
   </section>
 
-  <div class="error-box" id="errorBox"></div>
-오전 10:52 2026-11-25
-  <main class="results-box" id="resultsBox">
+  <div class="err" id="errBox"></div>
+
+  <main class="res" id="resBox">
     <article class="card">
-      <div class="res-top">
-        <div><span class="badge">CARD 01 · 생활기록부 추천</span><h3 style="margin-top:4px;">📋 나이스 표준형 (개조식 정돈 문체)</h3></div>
-        <div class="row"><span class="counter" id="count1">0자 / 0 Byte</span><button type="button" class="btn-copy" onclick="copyText('res1', this)">복사하기</button></div>
+      <div class="r-top">
+        <div><span class="bdg">CARD 01 · 생활기록부 추천</span><h3 style="margin-top:4px">📋 나이스 표준형 (개조식 정돈 문체)</h3></div>
+        <div class="row"><span class="cnt" id="c1">0자 / 0 Byte</span><button type="button" class="cp" onclick="cpTxt('r1',this)">복사하기</button></div>
       </div>
-      <textarea class="res-textarea" id="res1" oninput="updateCount('res1', 'count1')"></textarea>
+      <textarea class="r-txt" id="r1" oninput="cnt('r1','c1')"></textarea>
     </article>
 
     <article class="card">
-      <div class="res-top">
-        <div><span class="badge">CARD 02 · 생활기록부 추천</span><h3 style="margin-top:4px;">🌟 강점·성장 강조형 (긍정 변화 부각 문체)</h3></div>
-        <div class="row"><span class="counter" id="count2">0자 / 0 Byte</span><button type="button" class="btn-copy" onclick="copyText('res2', this)">복사하기</button></div>
+      <div class="r-top">
+        <div><span class="bdg">CARD 02 · 생활기록부 추천</span><h3 style="margin-top:4px">🌟 강점·성장 강조형 (긍정 변화 부각 문체)</h3></div>
+        <div class="row"><span class="cnt" id="c2">0자 / 0 Byte</span><button type="button" class="cp" onclick="cpTxt('r2',this)">복사하기</button></div>
       </div>
-      <textarea class="res-textarea" id="res2" oninput="updateCount('res2', 'count2')"></textarea>
+      <textarea class="r-txt" id="r2" oninput="cnt('r2','c2')"></textarea>
     </article>
 
-    <article class="card" style="border-left: 5px solid var(--secondary);">
-      <div class="res-top">
-        <div><span class="badge blue">CARD 03 · 상담 및 가정 연계용</span><h3 style="margin-top:4px;">💬 학부모 상담 포인트 & 가정 지도 조언</h3></div>
-        <div class="row"><span class="counter" id="count3">0자 / 0 Byte</span><button type="button" class="btn-copy blue" onclick="copyText('res3', this)">복사하기</button></div>
+    <article class="card" style="border-left:5px solid var(--s)">
+      <div class="r-top">
+        <div><span class="bdg bl">CARD 03 · 상담 및 가정 연계용</span><h3 style="margin-top:4px">💬 학부모 상담 포인트 & 가정 지도 조언</h3></div>
+        <div class="row"><span class="cnt" id="c3">0자 / 0 Byte</span><button type="button" class="cp bl" onclick="cpTxt('r3',this)">복사하기</button></div>
       </div>
-      <textarea class="res-textarea" id="res3" oninput="updateCount('res3', 'count3')"></textarea>
+      <textarea class="r-txt" id="r3" oninput="cnt('r3','c3')"></textarea>
     </article>
   </main>
 </div>
+
 <script>
-  const KEY_NAME = "neis_elem_gemini_key";
-  const apiKeyInput = document.getElementById("apiKeyInput");
-  const saveKeyCheck = document.getElementById("saveKeyCheck");
   const obsInput = document.getElementById("obsInput");
   const generateBtn = document.getElementById("generateBtn");
 
-  window.addEventListener("DOMContentLoaded", function() {
-    const saved = localStorage.getItem(KEY_NAME);
-    if (saved) {
-      apiKeyInput.value = saved;
-      saveKeyCheck.checked = true;
-    }
-    checkReady();
-  });
-
-  function syncKey() {
-    if (saveKeyCheck.checked && apiKeyInput.value.trim()) {
-      localStorage.setItem(KEY_NAME, apiKeyInput.value.trim());
-    } else {
-      localStorage.removeItem(KEY_NAME);
-    }
-  }
-
   function checkReady() {
-    const hasObs = obsInput.value.trim().length > 0;
-    generateBtn.disabled = !hasObs;
+    generateBtn.disabled = obsInput.value.trim().length === 0;
   }
 
-
-  saveKeyCheck.addEventListener("change", syncKey);
-  apiKeyInput.addEventListener("input", function() { syncKey(); checkReady(); });
   obsInput.addEventListener("input", checkReady);
-
-  document.getElementById("togglePwBtn").addEventListener("click", function() {
-    const isPw = apiKeyInput.type === "password";
-    apiKeyInput.type = isPw ? "text" : "password";
-    this.textContent = isPw ? "숨기기" : "보기";
-  });
 
   document.getElementById("tagContainer").addEventListener("click", function(e) {
     const btn = e.target.closest(".tag");
@@ -247,44 +152,43 @@
     checkReady();
   });
 
-  function updateCount(textId, countId) {
-    const str = document.getElementById(textId).value;
-    let bytes = 0;
-    for (let i = 0; i < str.length; i++) {
-      const code = str.charCodeAt(i);
-      bytes += code <= 0x7f ? 1 : code <= 0x7ff ? 2 : 3;
+  function cnt(tid, cid) {
+    const s = document.getElementById(tid).value;
+    let b = 0;
+    for (let i = 0; i < s.length; i++) {
+      const c = s.charCodeAt(i);
+      b += c <= 0x7f ? 1 : c <= 0x7ff ? 2 : 3;
     }
-    document.getElementById(countId).textContent = str.length + "자 / " + bytes + " Byte";
+    document.getElementById(cid).textContent = s.length + "자 / " + b + " Byte";
   }
 
-  function copyText(id, btn) {
-    const val = document.getElementById(id).value;
-    navigator.clipboard.writeText(val).then(function() {
-      const old = btn.textContent;
+  function cpTxt(id, btn) {
+    navigator.clipboard.writeText(document.getElementById(id).value).then(function() {
+      const o = btn.textContent;
       btn.textContent = "복사됨 ✓";
-      setTimeout(function() { btn.textContent = old; }, 1500);
+      setTimeout(function() { btn.textContent = o; }, 1500);
     });
   }
+
   generateBtn.addEventListener("click", async function() {
-    const apiKey = apiKeyInput.value.trim();
     const grade = document.getElementById("gradeSelect").value;
     const lengthOpt = document.querySelector('input[name="lengthOpt"]:checked').value;
     const obsText = obsInput.value.trim();
 
-    const loadingBox = document.getElementById("loadingBox");
-    const errorBox = document.getElementById("errorBox");
-    const resultsBox = document.getElementById("resultsBox");
+    const loadBox = document.getElementById("loadBox");
+    const errBox = document.getElementById("errBox");
+    const resBox = document.getElementById("resBox");
 
-    errorBox.classList.remove("active");
-    resultsBox.classList.remove("active");
-    loadingBox.classList.add("active");
+    errBox.classList.remove("on");
+    resBox.classList.remove("on");
+    loadBox.classList.add("on");
     generateBtn.disabled = true;
 
     try {
       const response = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ apiKey, grade, lengthOpt, obsText })
+        body: JSON.stringify({ grade, lengthOpt, obsText })
       });
 
       const parsed = await response.json();
@@ -293,24 +197,25 @@
         throw new Error(parsed.error || "분석 요청에 실패했습니다.");
       }
 
-      document.getElementById("res1").value = parsed.standardType || "";
-      document.getElementById("res2").value = parsed.growthType || "";
-      document.getElementById("res3").value = parsed.counselingTip || "";
+      document.getElementById("r1").value = parsed.standardType || "";
+      document.getElementById("r2").value = parsed.growthType || "";
+      document.getElementById("r3").value = parsed.counselingTip || "";
 
-      updateCount("res1", "count1");
-      updateCount("res2", "count2");
-      updateCount("res3", "count3");
+      cnt("r1", "c1");
+      cnt("r2", "c2");
+      cnt("r3", "c3");
 
-      resultsBox.classList.add("active");
-      resultsBox.scrollIntoView({ behavior: "smooth" });
+      resBox.classList.add("on");
+      resBox.scrollIntoView({ behavior: "smooth" });
     } catch (err) {
-      errorBox.textContent = "⚠️ 오류 상세 내용: " + err.message;
-      errorBox.classList.add("active");
+      errBox.textContent = "⚠️ 오류 상세 내용: " + err.message;
+      errBox.classList.add("on");
     } finally {
-      loadingBox.classList.remove("active");
+      loadBox.classList.remove("on");
       checkReady();
     }
   });
- </script>
+</script>
 </body>
 </html>
+
