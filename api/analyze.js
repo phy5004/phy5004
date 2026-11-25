@@ -5,10 +5,10 @@ export default async function handler(req, res) {
 
   try {
     const { grade, lengthOpt, obsText } = req.body || {};
-    const apiKey = (process.env.GEMINI_API_KEY || "").trim();
+    const apiKey = (process.env.GEMINI_API_KEY || "").replace(/['"\s]/g, "");
 
     if (!apiKey) {
-      return res.status(500).json({ error: "Vercel 환경변수에 GEMINI_API_KEY가 등록되지 않았습니다." });
+      return res.status(500).json({ error: "Vercel 환경변수 GEMINI_API_KEY가 비어 있습니다." });
     }
 
     const prompt = `당신은 대한민국 초등학교 교사이자 나이스(NEIS) 생활기록부 기재 요령 전문가입니다.
@@ -28,46 +28,39 @@ export default async function handler(req, res) {
   "counselingTip": "학부모 상담 포인트 및 가정 지도 조언 (3~4문장, '~습니다.' 경어체)"
 }`;
 
-    // 1. 현재 API 키로 사용 가능한 모델 목록 자동 조회
-    const listRes = await fetch("https://googleapis.com", {
-      headers: { "x-goog-api-key": apiKey }
+    const bodyData = JSON.stringify({
+      contents: new Array({ parts: new Array({ text: prompt }) }),
+      generationConfig: { temperature: 0.7, responseMimeType: "application/json" }
     });
-    const listData = await listRes.json();
 
-    if (!listRes.ok) {
-      throw new Error(listData?.error?.message || `모델 목록 조회 실패 (${listRes.status})`);
-    }
-
-    const models = (listData.models || []).filter(
-      (m) => m.supportedGenerationMethods && m.supportedGenerationMethods.includes("generateContent")
-    );
-
-    // flash 계열 우선 선택
-    const chosen = models.find((m) => m.name.includes("flash")) || models.at(0);
-    if (!chosen) {
-      throw new Error("현재 API 키에서 사용 가능한 Gemini 모델이 없습니다.");
-    }
-
-    // 2. 선택된 최신 모델로 문구 생성 호출
-    const genUrl = `https://googleapis.com{chosen.name}:generateContent`;
-    const response = await fetch(genUrl, {
+    // 1차 시도: 일반 AI Studio 엔드포인트
+    let url = "https://googleapis.com" + encodeURIComponent(apiKey);
+    let response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": apiKey
-      },
-      body: JSON.stringify({
-        contents: new Array({ parts: new Array({ text: prompt }) }),
-        generationConfig: {
-          temperature: 0.7,
-          responseMimeType: "application/json"
-        }
-      })
+      headers: { "Content-Type": "application/json" },
+      body: bodyData
     });
 
-    const data = await response.json();
+    // AQ. 키 등 Vertex AI Express 엔드포인트가 필요한 경우 2차 자동 시도
+    if (response.status === 404 && apiKey.startsWith("AQ.")) {
+      url = "https://googleapis.com" + encodeURIComponent(apiKey);
+      response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: bodyData
+      });
+    }
+
+    const rawBody = await response.text();
+    let data;
+    try {
+      data = JSON.parse(rawBody);
+    } catch (e) {
+      throw new Error(`응답코드(${response.status}), 키시작(${apiKey.slice(0, 6)}...), 내용: ${rawBody.slice(0, 80)}`);
+    }
+
     if (!response.ok) {
-      throw new Error(data?.error?.message || `Gemini API 오류 (${response.status})`);
+      throw new Error(data?.error?.message || `API 오류 (${response.status})`);
     }
 
     const rawText = data.candidates.at(0).content.parts.at(0).text;
@@ -76,7 +69,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json(parsed);
   } catch (err) {
-    return res.status(500).json({ error: "서버 오류: " + err.message });
+    return res.status(500).json({ error: err.message });
   }
 }
 
