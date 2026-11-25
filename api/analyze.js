@@ -33,30 +33,23 @@ export default async function handler(req, res) {
       generationConfig: { temperature: 0.7, responseMimeType: "application/json" }
     });
 
-    // 1차 시도: 일반 AI Studio 엔드포인트
-    let url = "https://googleapis.com" + encodeURIComponent(apiKey);
-    let response = await fetch(url, {
+    // AQ. 키는 Vertex AI 리전 엔드포인트(us-central1), AIza 키는 AI Studio 엔드포인트 사용
+    const url = apiKey.startsWith("AQ.")
+      ? "https://googleapis.com" + encodeURIComponent(apiKey)
+      : "https://googleapis.com" + encodeURIComponent(apiKey);
+
+    const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: bodyData
     });
-
-    // AQ. 키 등 Vertex AI Express 엔드포인트가 필요한 경우 2차 자동 시도
-    if (response.status === 404 && apiKey.startsWith("AQ.")) {
-      url = "https://googleapis.com" + encodeURIComponent(apiKey);
-      response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: bodyData
-      });
-    }
 
     const rawBody = await response.text();
     let data;
     try {
       data = JSON.parse(rawBody);
     } catch (e) {
-      throw new Error(`응답코드(${response.status}), 키시작(${apiKey.slice(0, 6)}...), 내용: ${rawBody.slice(0, 80)}`);
+      throw new Error(`구글 응답 오류(${response.status}): ${rawBody.slice(0, 100)}`);
     }
 
     if (!response.ok) {
@@ -69,7 +62,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json(parsed);
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    const detail = err.cause ? ` (${err.cause.message || err.cause.code})` : "";
+    return res.status(500).json({ error: err.message + detail });
   }
 }
-
