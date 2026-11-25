@@ -216,10 +216,10 @@
   }
 
   function checkReady() {
-    const hasKey = apiKeyInput.value.trim().length > 0;
     const hasObs = obsInput.value.trim().length > 0;
-    generateBtn.disabled = !(hasKey && hasObs);
+    generateBtn.disabled = !hasObs;
   }
+
 
   saveKeyCheck.addEventListener("change", syncKey);
   apiKeyInput.addEventListener("input", function() { syncKey(); checkReady(); });
