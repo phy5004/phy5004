@@ -30,7 +30,7 @@ export default async function handler(req, res) {
 
     const proto = "https:/";
     const host = "generativelanguage" + ".googleapis.com";
-    const endpoint = [proto, host, "v1beta", "models", "gemini-2.5-flash:generateContent"].join("/");
+    const endpoint = [proto, host, "v1beta", "models", "gemini-3.8-flash:generateContent"].join("/");
 
     const response = await fetch(endpoint, {
       method: "POST",
@@ -65,4 +65,3 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message });
   }
 }
-
