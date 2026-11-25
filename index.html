@@ -175,7 +175,7 @@
     const lengthOpt = document.querySelector('input[name="lengthOpt"]:checked').value;
     const obsText = obsInput.value.trim();
 
-    const loadBox = document.getElementById("loadBox");
+    const loadBox = document.getElementById("loadingBox");
     const errBox = document.getElementById("errBox");
     const resBox = document.getElementById("resBox");
 
@@ -191,7 +191,13 @@
         body: JSON.stringify({ grade, lengthOpt, obsText })
       });
 
-      const parsed = await response.json();
+      const rawResponse = await response.text();
+      let parsed;
+      try {
+        parsed = JSON.parse(rawResponse);
+      } catch (e) {
+        throw new Error("서버 응답 오류 (" + response.status + "): " + rawResponse.slice(0, 100));
+      }
 
       if (!response.ok) {
         throw new Error(parsed.error || "분석 요청에 실패했습니다.");
@@ -218,4 +224,5 @@
 </script>
 </body>
 </html>
+
 
