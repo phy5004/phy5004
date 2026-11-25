@@ -5,7 +5,7 @@ export default async function handler(req, res) {
 
   try {
     const { grade, lengthOpt, obsText } = req.body || {};
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = (process.env.GEMINI_API_KEY || "").trim();
 
     if (!apiKey) {
       return res.status(500).json({ error: "Vercel 환경변수에 GEMINI_API_KEY가 등록되지 않았습니다." });
@@ -28,13 +28,14 @@ export default async function handler(req, res) {
   "counselingTip": "학부모 상담 포인트 및 가정 지도 조언 (3~4문장, '~습니다.' 경어체)"
 }`;
 
-    const domain = "https://googleapis.com";
-    const path = "/v1beta/models/gemini-2.5-flash:generateContent?key=";
-    const url = domain + path + encodeURIComponent(apiKey);
+    const url = "https://googleapis.com";
 
     const response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey
+      },
       body: JSON.stringify({
         contents: new Array({ parts: new Array({ text: prompt }) }),
         generationConfig: {
@@ -44,9 +45,16 @@ export default async function handler(req, res) {
       })
     });
 
-    const data = await response.json();
+    const rawBody = await response.text();
+    let data;
+    try {
+      data = JSON.parse(rawBody);
+    } catch (e) {
+      throw new Error(`구글 서버 비정상 응답 (${response.status}): ${rawBody.slice(0, 120)}`);
+    }
+
     if (!response.ok) {
-      return res.status(response.status).json({ error: data?.error?.message || "Gemini API 호출 오류" });
+      return res.status(response.status).json({ error: data?.error?.message || `Gemini API 오류 (${response.status})` });
     }
 
     const rawText = data.candidates.at(0).content.parts.at(0).text;
@@ -58,4 +66,3 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "서버 오류: " + err.message });
   }
 }
-
